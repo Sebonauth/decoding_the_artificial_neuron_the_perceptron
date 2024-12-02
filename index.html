@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- [Existing head content remains unchanged] -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decoding the Artificial Neuron - The Perceptron</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            font-size: 150%;
+        }
+        section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+        h1, h2, h3, h4 {
+            color: #333;
+            margin-top: 20px;
+        }
+        p, li {
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 20px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .image-placeholder, .interactive-placeholder, .continue-button, .vocab-section, .why-it-matters, .test-your-knowledge, .faq-section, .stop-and-think {
+            text-align: left;
+        }
+        .image-placeholder img, .interactive-placeholder img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .vocab-section, .why-it-matters, .test-your-knowledge, .faq-section, .stop-and-think {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .vocab-section {
+            background-color: #f0f8ff;
+        }
+        .vocab-section h3 {
+            color: #1e90ff;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+        .vocab-section h4 {
+            color: #000;
+            font-size: 0.9em;
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+        .vocab-term {
+            font-weight: bold;
+            color: #1e90ff;
+        }
+        .why-it-matters {
+            background-color: #ffe6f0;
+        }
+        .why-it-matters h3 {
+            color: #d81b60;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+        .stop-and-think {
+            background-color: #e6e6ff;
+        }
+        .stop-and-think h3 {
+            color: #4b0082;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+        .continue-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 15px;
+            color: #ffffff;
+            background-color: #007bff;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .reveal-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 15px;
+            color: #ffffff;
+            background-color: #4b0082;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+font-size: 1em;
+        }
+        .test-your-knowledge {
+            background-color: #e6ffe6;
+        }
+        .test-your-knowledge h3 {
+            color: #28a745;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+        .test-your-knowledge h4 {
+            color: #000;
+            font-size: 0.9em;
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+        .test-your-knowledge p {
+            margin-bottom: 15px;
+        }
+        .check-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 15px;
+            color: #ffffff;
+            background-color: #28a745;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 1em;
+        }
+        .faq-section {
+            background-color: #fffbea;
+        }
+        .faq-section h3 {
+            color: #ffcc00;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+        .faq-section h4 {
+            color: #000;
+            font-size: 0.9em;
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+        .interactive-element {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .slider-container {
+            margin-bottom: 10px;
+        }
+        .slider-container label {
+            display: inline-block;
+            width: 150px;
+        }
+        .slider-container input {
+            width: 200px;
+        }
+        /* Add styles for the perceptron diagram */
+        .perceptron-diagram {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .perceptron-diagram svg {
+            max-width: 100%;
+            height: auto;
+        }
+        .diagram-text {
+            font-size: 16px; /* Increased font size */
+            fill: #333;
+        }
+        .diagram-line {
+            stroke: #4b0082; /* Indigo color from lesson */
+            stroke-width: 4; /* Thicker lines */
+        }
+        .diagram-circle {
+            fill: #fff; /* Default fill color */
+            stroke: #1e90ff; /* DodgerBlue color */
+            stroke-width: 4; /* Thicker stroke */
+        }
+        .diagram-rect {
+            fill: #e6e6ff; /* Light purple from 'Stop and Think' section */
+            stroke: #4b0082; /* Indigo color */
+            stroke-width: 4;
+        }
+        /* Styles for dynamic fill */
+        .input-node {
+            stroke: #1e90ff;
+            stroke-width: 4;
+        }
+        .summation-node {
+            stroke: #d81b60; /* Color from 'Why It Matters' section */
+            stroke-width: 4;
+        }
+        .output-node {
+            stroke: #28a745; /* Green color from 'Test Your Knowledge' */
+            stroke-width: 4;
+        }
+    </style>
+    <!-- [Existing scripts remain unchanged] -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <section id="section1">
+<div class="image-placeholder">
+            <img src="/placeholder.svg?height=300&width=600" alt="Image of a perceptron with labeled inputs, weights, summation, bias, activation function, and output, but more visually engaging and cartoonish.">
+        <h1>Decoding the Artificial Neuron - The Perceptron</h1>
+        
+        </div>
+                <p>Imagine you're a detective trying to solve a case. You gather clues (inputs), analyze their importance (weights), and combine them with your intuition (bias) to reach a conclusion (output). The perceptron, a fundamental building block of neural networks, works in a similar way. Let's put on our detective hats and delve into the inner workings of this fascinating model!</p>
+        <div class="continue-button" onclick="showNextSection(2)">Continue</div>
+    </section>
+
+    <section id="section2">
+        <p>Our first clue is understanding how the perceptron receives information. Like a detective gathering testimonies from multiple witnesses, the perceptron takes in several <strong>inputs</strong>, each representing a different piece of the puzzle. These inputs could be anything – pixel values in an image, characteristics of a flower, or even stock prices.</p>
+<div class="continue-button" onclick="showNextSection(3)">Continue</div>
+    </section>
+
+    <section id="section3">        
+<div class="vocab-section">
+            <h3>Build Your Vocab</h3>
+            <h4 class="vocab-term">Inputs (xᵢ)</h4>
+            <p>Individual pieces of information or features fed into the perceptron.</p>
+        </div>
+        <div class="continue-button" onclick="showNextSection(4)">Continue</div>
+    </section>
+
+    <section id="section4">
+        <p>But not all clues are created equal. Some are more critical to solving the case than others. This is where <strong>weights</strong> come into play. Each input is assigned a weight, representing its relative importance. A large positive weight amplifies the input's influence, while a large negative weight diminishes it. Think of it as assigning credibility scores to each witness – a trustworthy witness gets a higher weight, while a less reliable one gets a lower weight.</p>
+<div class="continue-button" onclick="showNextSection(5)">Continue</div>
+    </section>
+
+    <section id="section5">
+        <div class="vocab-section">
+            <h3>Build Your Vocab</h3>
+            <h4 class="vocab-term">Weights (wᵢ)</h4>
+            <p>Values assigned to each input, determining the strength and direction of its influence on the perceptron's output.</p>
+        </div>
+        <div class="continue-button" onclick="showNextSection(6)">Continue</div>
+    </section>
+
+    <section id="section6">
+        <p>Now, let's combine these clues. The perceptron does this by multiplying each input by its corresponding weight and summing them all up. This process is called <strong>summation</strong>: \[ z = \sum_{i=1}^{n} w_i * x_i \] It's like adding up all the weighted evidence to get a total score.</p>
+        
+<div class="continue-button" onclick="showNextSection(7)">Continue</div>
+    </section>
+
+    <section id="section7">
+<div class="vocab-section">
+            <h3>Build Your Vocab</h3>
+            <h4 class="vocab-term">Summation (∑)</h4>
+            <p>The process of multiplying each input by its weight and summing the results.</p>
+        </div>
+        <div class="continue-button" onclick="showNextSection(8)">Continue</div>
+    </section>
+
+    <section id="section8">
+        <p>But wait, there's one more piece to the puzzle: the detective's intuition or <strong>bias</strong>. The bias is a constant value added to the weighted sum: \[ z = \sum_{i=1}^{n} w_i * x_i + b \] It acts like a baseline, influencing the perceptron's decision even when all inputs are zero. Think of it as the detective's gut feeling, which can sway the final judgment.</p>
+<div class="continue-button" onclick="showNextSection(9)">Continue</div>
+    </section>
+
+    <section id="section9">
+        <div class="vocab-section">
+            <h3>Build Your Vocab</h3>
+            <h4 class="vocab-term">Bias (b)</h4>
+            <p>A constant value added to the weighted sum of inputs, influencing the perceptron's activation.</p>
+        </div>
+        <div class="continue-button" onclick="showNextSection(10)">Continue</div>
+    </section>
+
+    <section id="section10">
+        <p>Finally, we need to make a decision – crack the case! The perceptron does this using an <strong>activation function</strong>. This function takes the combined weighted sum and bias and produces the final output: \[ a = \varphi(\sum_{i=1}^{n} w_i * x_i + b) \] The activation function introduces non-linearity, enabling the perceptron to solve complex problems. For now, let's use a simple step function:</p>
+<div class="continue-button" onclick="showNextSection(11)">Continue</div>
+    </section>
+
+    <section id="section11">
+        <div class="vocab-section">
+            <h3>Build Your Vocab</h3>
+            <h4 class="vocab-term">Activation Function (φ)</h4>
+            <p>A function that introduces non-linearity and determines the perceptron's final output based on the combined weighted sum and bias.</p>
+        </div>
+<div class="continue-button" onclick="showNextSection(12)">Continue</div>
+    </section>
+
+    <section id="section12">
+        <p>\[ \varphi(z) = \begin{cases} 1, & \text{if } z \geq 0 \\ 0, & \text{if } z < 0 \end{cases} \]</p>
+        <p>If the combined score (z) is greater than or equal to zero, the perceptron activates (output = 1); otherwise, it remains inactive (output = 0). Case closed!</p>
+        <div class="continue-button" onclick="showNextSection(13)">Continue</div>
+    </section>
+
+    <section id="section13">
+        <p>Let's put our knowledge to the test! Example: Imagine two inputs: x₁ = 2 (evidence strength) and x₂ = 1 (witness reliability), with weights w₁ = 0.5 and w₂ = -1 (negative weight indicating doubt), and a bias of b = 1 (detective's initial suspicion).</p>
+        <ol>
+            <li><strong>Weighted Sum:</strong> (0.5 * 2) + (-1 * 1) = 0</li>
+            <li><strong>Add Bias:</strong> 0 + 1 = 1</li>
+            <li><strong>Activation:</strong> Since 1 ≥ 0, φ(1) = 1. The perceptron activates! Based on the evidence and the detective's intuition, the case is solved!</li>
+        </ol>
+<div class="continue-button" onclick="showNextSection(14)">Continue</div>
+    </section>
+
+    <section id="section14">
+        <div class="stop-and-think">
+            <h3>Stop and Think</h3>
+            <h4>What would happen if we removed the bias in this example? Would the perceptron still activate?</h4>
+            <button class="reveal-button" onclick="revealAnswer('stop-and-think-1')">Reveal</button>
+            <p id="stop-and-think-1" style="display: none;">Without the bias (b=0), the final z would be 0. The step function would still activate since 0 ≥ 0, resulting in an output of 1. But try playing with different input values and weights in your mind. You'll quickly see how the bias can significantly influence the outcome!</p>
+        </div>
+        <div class="continue-button" onclick="showNextSection(15)">Continue</div>
+    </section>
+
+
+            <!-- Modified Section 8 with interactive perceptron flow diagram -->
+    <section id="section15">
+        <p>Let's get our hands dirty and experiment with a real perceptron! Below, you'll find an interactive perceptron. You can change the inputs, weights, and bias using sliders, and see how these changes affect the output in real-time.</p>
+        <div class="interactive-element">
+            <h3>Perceptron Simulator</h3>
+            <!-- Sliders for inputs, weights, and bias -->
+            <div class="slider-container">
+                <label for="input1">Input 1 (x₁):</label>
+                <input type="range" id="input1" min="-10" max="10" value="2" step="1">
+                <span id="input1-value">2</span>
+            </div>
+            <div class="slider-container">
+                <label for="input2">Input 2 (x₂):</label>
+                <input type="range" id="input2" min="-10" max="10" value="1" step="1">
+                <span id="input2-value">1</span>
+            </div>
+            <div class="slider-container">
+                <label for="weight1">Weight 1 (w₁):</label>
+                <input type="range" id="weight1" min="-2" max="2" value="0.5" step="0.1">
+                <span id="weight1-value">0.5</span>
+            </div>
+            <div class="slider-container">
+                <label for="weight2">Weight 2 (w₂):</label>
+                <input type="range" id="weight2" min="-2" max="2" value="-1" step="0.1">
+                <span id="weight2-value">-1</span>
+            </div>
+            <div class="slider-container">
+                <label for="bias">Bias (b):</label>
+                <input type="range" id="bias" min="-5" max="5" value="1" step="1">
+                <span id="bias-value">1</span>
+            </div>
+            <!-- Output display -->
+            <p>Output: <span id="output">1</span></p>
+            <!-- Perceptron Flow Diagram -->
+            <div class="perceptron-diagram">
+                <svg id="perceptron-svg" width="600" height="400">
+                    <!-- Definitions for markers and clip paths -->
+                    <defs>
+                        
+                        <!-- Clip paths for nodes -->
+                        <clipPath id="clip-input1">
+                            <circle cx="50" cy="100" r="30"></circle>
+                        </clipPath>
+                        <clipPath id="clip-input2">
+                            <circle cx="50" cy="250" r="30"></circle>
+                        </clipPath>
+                        <clipPath id="clip-bias">
+                            <circle cx="200" cy="50" r="30"></circle>
+                        </clipPath>
+                        <clipPath id="clip-summation">
+                            <circle cx="200" cy="175" r="40"></circle>
+                        </clipPath>
+                        <clipPath id="clip-output">
+                            <circle cx="510" cy="175" r="30"></circle>
+                        </clipPath>
+                    </defs>
+                    <!-- Input Node 1 -->
+                    <g id="input1-group">
+                        <!-- Circle outline -->
+                        <circle class="diagram-circle input-node" cx="50" cy="100" r="30"></circle>
+                        <!-- Fill rectangle -->
+                        <rect id="input1-fill" x="20" y="130" width="60" height="0" fill="#1e90ff" clip-path="url(#clip-input1)"></rect>
+                        <!-- Text label -->
+                        <text class="diagram-text" x="50" y="105" text-anchor="middle">x₁</text>
+                    </g>
+                    <!-- Input Node 2 -->
+                    <g id="input2-group">
+                        <!-- Circle outline -->
+                        <circle class="diagram-circle input-node" cx="50" cy="250" r="30"></circle>
+                        <!-- Fill rectangle -->
+                        <rect id="input2-fill" x="20" y="280" width="60" height="0" fill="#1e90ff" clip-path="url(#clip-input2)"></rect>
+                        <!-- Text label -->
+                        <text class="diagram-text" x="50" y="255" text-anchor="middle">x₂</text>
+                    </g>
+                    <!-- Weights -->
+                    <text class="diagram-text" x="90" y="90">w₁</text>
+                    <text class="diagram-text" x="90" y="240">w₂</text>
+                    <!-- Lines from inputs to summation -->
+                    <line class="diagram-line" x1="80" y1="100" x2="200" y2="175" marker-end="url(#arrow)"></line>
+                    <line class="diagram-line" x1="80" y1="250" x2="200" y2="175" marker-end="url(#arrow)"></line>
+                    <!-- Summation Node -->
+                    <g id="summation-group">
+                        <!-- Circle outline -->
+                        <circle class="diagram-circle summation-node" cx="200" cy="175" r="40"></circle>
+                        <!-- Fill rectangle -->
+                        <rect id="summation-fill" x="160" y="215" width="80" height="0" fill="#d81b60" clip-path="url(#clip-summation)"></rect>
+                        <!-- Text label -->
+                        <text class="diagram-text" x="200" y="180" text-anchor="middle">∑</text>
+                    </g>
+                    <!-- Bias Node -->
+                    <g id="bias-group">
+                        <!-- Circle outline -->
+                        <circle class="diagram-circle input-node" cx="200" cy="50" r="30"></circle>
+                        <!-- Fill rectangle -->
+                        <rect id="bias-fill" x="170" y="80" width="60" height="0" fill="#1e90ff" clip-path="url(#clip-bias)"></rect>
+                        <!-- Text label -->
+                        <text class="diagram-text" x="200" y="55" text-anchor="middle">b</text>
+                    </g>
+                    <!-- Line from bias to summation -->
+                    <line class="diagram-line" x1="200" y1="80" x2="200" y2="135" marker-end="url(#arrow)"></line>
+                    <!-- Line from summation to activation function -->
+                    <line class="diagram-line" x1="240" y1="175" x2="330" y2="175" marker-end="url(#arrow)"></line>
+                    <!-- Activation function rectangle -->
+                    <rect class="diagram-rect" x="330" y="145" width="80" height="60"></rect>
+                    <text class="diagram-text" x="370" y="180" text-anchor="middle">φ</text>
+                    <!-- Line from activation function to output -->
+                    <line class="diagram-line" x1="410" y1="175" x2="490" y2="175" marker-end="url(#arrow)"></line>
+                    <!-- Output Node -->
+                    <g id="output-group">
+                        <!-- Circle outline -->
+                        <circle class="diagram-circle output-node" cx="510" cy="175" r="30"></circle>
+                        <!-- Fill rectangle -->
+                        <rect id="output-fill" x="480" y="205" width="60" height="0" fill="#28a745" clip-path="url(#clip-output)"></rect>
+                        <!-- Text label -->
+                        <text class="diagram-text" x="510" y="180" text-anchor="middle">Output</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <p>Play around with the sliders! Try these challenges:</p>
+        <ol>
+            <li><strong>Zero Out:</strong> Can you find a combination of weights and bias that makes the output zero, regardless of the inputs?</li>
+            <li><strong>Always On:</strong> Can you make the perceptron always output 1?</li>
+            <li><strong>Input Power:</strong> Which input seems to have a stronger influence on the output when its weight is changed?</li>
+            <li><strong>Bias Shift:</strong> How does changing the bias affect the perceptron's behavior?</li>
+        </ol>
+        <div class="continue-button" onclick="showNextSection(16)">Continue</div>
+    </section>
+
+    <section id="section16">
+        <h3>Review and Reflect</h3>
+        <div class="image-placeholder">
+            <img src="/placeholder.svg?height=300&width=600" alt="Image of a brain with gears turning inside, symbolizing the mathematical workings of the perceptron and its connection to biological intelligence.">
+        </div>
+        <p>We've unlocked the secrets of the perceptron! You've learned its core components - inputs, weights, summation, bias, and the activation function – and even experimented with it hands-on. Let's solidify what we've learned:</p>
+        <ul>
+            <li>The perceptron combines weighted inputs and a bias to make a decision.</li>
+            <li>The activation function introduces non-linearity, crucial for learning complex patterns.</li>
+            <li>Weights determine the strength and direction of each input's influence.</li>
+            <li>The bias acts as a baseline, affecting activation even with zero inputs.</li>
+        </ul>
+ <div class="continue-button" onclick="showNextSection(17)">Continue</div>
+    </section>
+
+    <section id="section17">
+        <p>You've taken a significant step in understanding the building blocks of neural networks. In the next lesson, we'll explore how multiple perceptrons can be connected to form powerful networks capable of solving even more complex problems. Get ready to enter the world of neural network architectures!</p>
+    </section>
+
+    <script>
+        // Show the first section initially
+        document.getElementById("section1").style.display = "block";
+        document.getElementById("section1").style.opacity = "1";
+
+        function showNextSection(nextSectionId) {
+            const currentButton = event.target;
+            const nextSection = document.getElementById("section" + nextSectionId);
+            
+            currentButton.style.display = "none";
+            
+            nextSection.style.display = "block";
+            setTimeout(() => {
+                nextSection.style.opacity = "1";
+            }, 10);
+
+            setTimeout(() => {
+                nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        }
+
+        function revealAnswer(id) {
+            const revealText = document.getElementById(id);
+            const revealButton = event.target;
+            
+            revealText.style.display = "block";
+            revealButton.style.display = "none";
+        }
+
+        // Perceptron Simulator with Interactive Diagram
+        function updatePerceptron() {
+            const input1 = parseFloat(document.getElementById('input1').value);
+            const input2 = parseFloat(document.getElementById('input2').value);
+            const weight1 = parseFloat(document.getElementById('weight1').value);
+            const weight2 = parseFloat(document.getElementById('weight2').value);
+            const bias = parseFloat(document.getElementById('bias').value);
+
+            const z = input1 * weight1 + input2 * weight2 + bias;
+            const output = z >= 0 ? 1 : 0;
+
+            document.getElementById('output').textContent = output;
+
+            // Update the perceptron diagram
+            updatePerceptronDiagram(input1, input2, weight1, weight2, bias, z, output);
+        }
+
+        function updatePerceptronDiagram(input1, input2, weight1, weight2, bias, z, output) {
+            // Normalize input values between 0 and 1
+            const normInput1 = (input1 + 10) / 20;
+            const normInput2 = (input2 + 10) / 20;
+            const normBias = (bias + 5) / 10;
+
+            // Summation node normalization (assuming z ranges from -20 to 20)
+            const normZ = (z + 20) / 40;
+
+            // Get fill rectangles
+            const input1Fill = document.getElementById('input1-fill');
+            const input2Fill = document.getElementById('input2-fill');
+            const biasFill = document.getElementById('bias-fill');
+            const summationFill = document.getElementById('summation-fill');
+            const outputFill = document.getElementById('output-fill');
+
+            // Function to update fill rectangle
+            function updateFillRect(rect, normValue, cx, cy, radius) {
+                const maxFillHeight = radius * 2;
+                const fillHeight = maxFillHeight * normValue;
+                const fillY = cy + radius - fillHeight;
+                rect.setAttribute('y', fillY);
+                rect.setAttribute('height', fillHeight);
+            }
+
+            // Update fills for input nodes
+            updateFillRect(input1Fill, normInput1, 50, 100, 30);
+            updateFillRect(input2Fill, normInput2, 50, 250, 30);
+            // Update fill for bias node
+            updateFillRect(biasFill, normBias, 200, 50, 30);
+            // Update fill for summation node
+            const clampedNormZ = Math.max(0, Math.min(normZ, 1)); // Clamp between 0 and 1
+            updateFillRect(summationFill, clampedNormZ, 200, 175, 40);
+            // Update fill for output node
+            updateFillRect(outputFill, output, 510, 175, 30);
+        }
+
+        // Update value displays and recalculate on slider change
+        const sliders = ['input1', 'input2', 'weight1', 'weight2', 'bias'];
+        sliders.forEach(id => {
+            const slider = document.getElementById(id);
+            const valueDisplay = document.getElementById(id + '-value');
+            slider.addEventListener('input', () => {
+                valueDisplay.textContent = slider.value;
+                updatePerceptron();
+            });
+        });
+
+        // Initial calculation
+        updatePerceptron();
+    </script>
+</body>
+</html>
+
